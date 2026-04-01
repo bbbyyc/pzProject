@@ -142,3 +142,15 @@ export const companionList = (params:companionList) => {
 export const delectCompanion = (data:delectCompanion) => {
   return request.post('/delete/companion',data)
 }
+
+// 订单列表
+export const adminOrder = (params:companionList) => {
+  return request.get('/admin/order',{
+    params:params
+  })
+}
+
+// 服务状态完成/update/order
+export const updateOrder = (data:string) => {
+  return request.post('/update/order',data)
+}
