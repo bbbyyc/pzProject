@@ -4,14 +4,13 @@
         <el-icon class="icon" size="20" @click="MenuStore.collapseMenu"><Fold /></el-icon>
         <ul class="flex-box">
           <!-- :class="{selected:route.path===item.path}" :当判断结果为true时，selected 类名就会被添加到这个元素上；反之则移除。 -->
-          <li v-for="(item,index) in MenuStore.selectMenu"
-           :key="item.path"
-           :class="{selected:route.path===item.path}"
-           class="tab flex-box">
-             <el-icon size="12""><component :is="item.icon"></component></el-icon>
+          <li v-for="(item,index) in selectMenuList"
+            :key="item.path || index"
+            :class="{selected:route.path===item.path}"
+            class="tab flex-box">
+              <el-icon size="12"><component :is="item.icon"></component></el-icon>
               <router-link class="text flex-box" :to="{path:item.path}">{{ item.name }}</router-link>
-             <el-icon size="12" class="close" @click="closeTab(item,index)"><Close /></el-icon>
-
+              <el-icon size="12" class="close" @click="closeTab(item,index)"><Close /></el-icon>
           </li>
         </ul>
       </div>
@@ -32,17 +31,24 @@
 </template>
 
 <script setup lang="ts" name="navHeader">
+import { computed } from 'vue'
 import {useRoute,useRouter} from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useMenuStore } from '../store/menu'
 
 const MenuStore = useMenuStore()
+const { selectMenu } = storeToRefs(MenuStore)
+const selectMenuList = computed(() => selectMenu.value.filter(item => item && item.path))
 
 //  拿到当前的路由对象
 const route=useRoute()
 const router=useRouter()
 console.log('当前的路由对象',route);
 
-const userInfo=JSON.parse(localStorage.getItem('pz_userInfo'))
+const localUserInfo = localStorage.getItem('pz_userInfo')
+const userInfo = localUserInfo
+  ? JSON.parse(localUserInfo)
+  : { name: '管理员', avatar: '' }
 
 // 执行点击关闭
 function closeTab(item:any,index:number){
@@ -52,17 +58,23 @@ function closeTab(item:any,index:number){
   /* const newSelectMenu = MenuStore.selectMenu
   const newLength = newSelectMenu.length */
   // 如果删除的是非当前页tag
-  if(route.path!==item.path){
+  if (!item || !item.path || route.path !== item.path) {
     return
   }
-  if(index===MenuStore.selectMenu.length){
-    if(MenuStore.selectMenu.length===0){
+  if (index === MenuStore.selectMenu.length) {
+    if (MenuStore.selectMenu.length === 0) {
       router.push('/')
-    }else{
-      router.push({ path: MenuStore.selectMenu[index-1].path })
+    } else {
+      const nextItem = MenuStore.selectMenu[index - 1]
+      if (nextItem && nextItem.path) {
+        router.push({ path: nextItem.path })
+      }
     }
-  }else {
-      router.push({ path: MenuStore.selectMenu[index].path })
+  } else {
+      const nextItem = MenuStore.selectMenu[index]
+      if (nextItem && nextItem.path) {
+        router.push({ path: nextItem.path })
+      }
   }
 }
 

@@ -11,26 +11,25 @@
         @close="handleClose"
       >
       <p class="logo-lg">DIDI问诊</p>
-       <TreeMenu :menuData="menuData" :index="1"></TreeMenu>
+       <TreeMenu :menuData="menuData" :index="'1'"></TreeMenu>
       </el-menu>
 </template>
 
 <script lang="ts" setup>
-import TreeMenu from './treeMenu.vue'
+import { computed, defineAsyncComponent } from 'vue'
 import {useRouter} from 'vue-router'
 import { storeToRefs } from 'pinia' 
-import { useMenuStore } from '../store/menu'
+import { useMenuStore, type MenuItem } from '../store/menu'
 
+const TreeMenu = defineAsyncComponent(() => import('./treeMenu.vue') as Promise<any>)
 
 const MenuStore = useMenuStore()
 
-// const isCollapse = ref(true)
-const { isCollapse,routerList } = storeToRefs(MenuStore)
+const { isCollapse, routerList } = storeToRefs(MenuStore)
 const router=useRouter()
 console.log('router',router);
 
-// const menuData=reactive(router.options.routes[0]?.children||[])
-const menuData=routerList.value
+const menuData = computed<MenuItem[]>(() => routerList.value || [])
 console.log(routerList);
 
 console.log('menuData from store:', menuData)

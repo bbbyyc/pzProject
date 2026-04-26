@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory} from 'vue-router';
-import type { RouteRecordRaw } from 'vue-router'; 
+import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 // 导入你的页面组件（示例）
 import Login from '../views/login/index.vue';
 import Dashboard from '../views/dashboard/index.vue';
@@ -10,50 +10,51 @@ import Order from '../views/vppz/order/index.vue';
 import Layout from '../views/Main.vue';
 
 
-import {useMenuStore} from '../store/menu'
+import { useMenuStore } from '../store/menu'
 
 
 
 // 为了实现路由重定向：即就是访问 / 时，应该显示的第一个有权限的路径所对应的内容；为了拿到第一个有权限的菜单，需要拿出路由列表
 // 之前为了解决持久化问题，已经将路由列表存储在了localStorage中
-const pz_v3pz=localStorage.getItem('pz_v3pz')
 
 // 定义路由规则的类型
 const routes: Array<RouteRecordRaw> = [
-  { 
+  {
     path: '/',
     component: Layout,
     name: 'main',
-   redirect: () => {
-    if (!pz_v3pz) {
-      return '/login'
-    }
-    try {
-      // 把这行代码代码挪进来就实现了重定向时第一个有权限的文件的高亮效果，
-      // 同时如果写在redirect外部，就会导致pinia还没引入就使用pinia，控制台会报错
-      // 写在里面就是重定向的时候才会使用，此时页面已经渲染完毕
-      const useMenu=useMenuStore()
-      const pzData = JSON.parse(pz_v3pz)
-      /* if (!pzData.routerList || !pzData.routerList[0]) {
-        return '/login' // 或者默认首页
-      } */
-      const child = pzData.routerList[0].children
-      if (child && child.length > 0) {
-        useMenu.addMenu(child.meta)
-        useMenu.updateMenuActive('1-1-1')
-        return child[0].meta.path
-      } else {
-        useMenu.addMenu(pzData.routerList[0].meta)
-        useMenu.updateMenuActive('1-1')
-        return pzData.routerList[0].meta.path
+    redirect: () => {
+      const pz_v3pz = localStorage.getItem('pz_v3pz')
+      if (!pz_v3pz) {
+        return '/login'
       }
-    } catch (e) {
-      console.error('解析 pz_v3pz 失败', e)
-      return '/login'
-    }
-},
-  
-    
+      try {
+        // 把这行代码代码挪进来就实现了重定向时第一个有权限的文件的高亮效果，
+        // 同时如果写在redirect外部，就会导致pinia还没引入就使用pinia，控制台会报错
+        // 写在里面就是重定向的时候才会使用，此时页面已经渲染完毕
+        const useMenu = useMenuStore()
+        const rawData = JSON.parse(pz_v3pz)
+        const pzData = Array.isArray(rawData) ? rawData : rawData.routerList || rawData
+        if (!pzData || !pzData[0]) {
+          return '/login'
+        }
+        const child = pzData[0].children
+        if (child && child.length > 0) {
+          useMenu.addMenu(child.meta)
+          useMenu.updateMenuActive('1-1-1')
+          return child[0].meta.path
+        } else {
+          useMenu.addMenu(pzData[0].meta)
+          useMenu.updateMenuActive('1-1')
+          return pzData[0].meta.path
+        }
+      } catch (e) {
+        console.error('解析 pz_v3pz 失败', e)
+        return '/login'
+      }
+    },
+
+
     children: [
       {
         path: 'dashboard',
@@ -62,7 +63,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'auth',
-        meta: { id: '2' ,name: '权限管理', icon: 'Grid' },
+        meta: { id: '2', name: '权限管理', icon: 'Grid' },
         children: [
           {
             path: '',
@@ -95,13 +96,13 @@ const routes: Array<RouteRecordRaw> = [
         ]
       }
     ],
-    
+
   },
   {
     path: '/login',
     component: Login
   },
-  
+
 ]
 
 

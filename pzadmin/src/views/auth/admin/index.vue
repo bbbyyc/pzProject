@@ -84,12 +84,17 @@
 </template>
 
 <script setup>
-  import {authAdmin,menuSelectList,updateUser} from '../../../api'
+  import {authAdmin,menuSelectList,updateUser,menuPermissions} from '../../../api'
   import { ref,reactive ,onMounted} from 'vue'
-  import {useRoute} from 'vue-router'
+  import {useRoute,useRouter} from 'vue-router'
+  import {useMenuStore} from '../../../store/menu'
   import dayjs from 'dayjs'
 
   const route=useRoute()
+  const router=useRouter()
+  const menuStore=useMenuStore()
+  const currentUserInfo = JSON.parse(localStorage.getItem('pz_userInfo') || '{}')
+  const currentUserId = currentUserInfo?.id
   console.log('admin中的route',route);
   
   onMounted(()=>{
@@ -115,15 +120,29 @@
   // 弹窗表单提交
   const confirm=async ()=>{
     if(!formRef.value) return
-    await formRef.value.validate((valid,fields)=>{
+    await formRef.value.validate(async (valid,fields)=>{
       if (valid) {
-        const {name,permissions_id}=form
-        updateUser({name,permissions_id}).then(({data})=>{
+        const {name,permissions_id,id}=form
+        updateUser({name,permissions_id,id}).then(async ({data})=>{
            if(data.code===10000){
             dialogVisable.value=false
             // 更新当前列表数据
             getListData()
-              }})
+            // 如果编辑的是当前登录用户，刷新当前权限菜单
+            if (id && String(id) === String(currentUserId)) {
+              try {
+                const menuRes = await menuPermissions()
+                const menuData = menuRes.data.data
+                if (menuData) {
+                  localStorage.setItem('pz_v3pz', JSON.stringify(menuData))
+                  menuStore.dynamicMenu(menuData)
+                  router.replace({ path: '/' })
+                }
+              } catch (err) {
+                console.error('刷新菜单权限失败', err)
+              }
+            }
+          }})
       }else{
         console.log('error submit!', fields)
       }
@@ -134,7 +153,8 @@
   const form=reactive({
     mobile:'',
     name:'',
-    permissions_id:''
+    permissions_id:'',
+    id:''
   })
 
   const paginationData=reactive({
@@ -183,7 +203,9 @@
     Object.assign(form,{
       mobile:rowData.mobile,
       name:rowData.name,
-      permissions_id:rowData.permissions_id})
+      permissions_id:rowData.permissions_id,
+      id: rowData.id
+    })
   }
 
   // 切换每页显示条数时触发（如从 10 条 / 页改成 20 条 / 页）

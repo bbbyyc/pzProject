@@ -5,7 +5,7 @@ import router from "./router";
 import './style.css'
 
 import ElementPlus from 'element-plus'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue' 
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 
 // 全局注入一个组件：步骤1
@@ -22,7 +22,7 @@ const pinia = createPinia()
 // 注册持久化插件
 pinia.use(piniaPluginPersistedstate)
 
-const app=createApp(App)
+const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
@@ -33,21 +33,19 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 
 // 全局注入一个组件：步骤2
-app.component('panelHead',panelHead)
+app.component('panelHead', panelHead)
 
 
 // 创建全局路由守卫
 
-router.beforeEach((to, from) => {
-  const token=localStorage.getItem('pz_token')
-  // 在非登陆页面token不存在就跳转回登陆页面
-  if(!token&&to.path!=='/login'){
+router.beforeEach((to) => {
+  const token = localStorage.getItem('pz_token')
+  if (!token && to.path !== '/login') {
     return '/login'
-  }else if(token&&to.path==='/login'){ //token已存在还要回到登陆页面:不行
+  } else if (token && to.path === '/login') {
     return '/'
-  }else{//其他情况:顺利向下执行
-  return true
   }
+  return true
 })
 
 app.use(ElementPlus)

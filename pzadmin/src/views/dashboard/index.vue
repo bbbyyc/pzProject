@@ -182,12 +182,12 @@ const setTrend = (list: OrderItem[]) => {
   list.forEach((item) => {
     const key = dayjs(item.order_start_time).format('YYYY-MM-DD')
     if (Object.prototype.hasOwnProperty.call(map, key)) {
-      map[key] += 1
+      map[key] = (map[key] || 0) + 1
     }
   })
 
   trendData.labels = labels
-  trendData.values = labels.map((label) => map[label])
+  trendData.values = labels.map((label) => map[label] ?? 0)
 }
 
 const getDashboardData = async () => {

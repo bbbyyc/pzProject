@@ -217,24 +217,25 @@ const submitForm = async () => {
         ) */
         // 1. 先获取菜单数据并存入 store
           const menuRes = await menuPermissions()
-          MenuStore.dynamicMenu(menuRes.data.data)
-          
-          // 2. 获取添加完成后的路由列表
-          const routes = MenuStore.routerList  // 或者 routerList.value
-          // 3. 添加路由
-          routes.forEach(item => {
-            router.addRoute('main', item)
-          })
-          /* // 4. 确保路由添加完成后再跳转
-          // 可以使用 nextTick 或 setTimeout 确保路由添加完成
-          await nextTick()
-          // await router.isReady() 
-          router.push('/')      
-          } */
-        // 4. 使用定时器强制刷新页面跳转到首页
-          setTimeout(() => {
-            window.location.href = '/'  // 强制刷新页面并跳转到首页
-          }, 100)  // 100ms 的延迟，确保路由添加完成
+          const menuData = menuRes.data.data
+          if (menuData) {
+            localStorage.setItem('pz_v3pz', JSON.stringify(menuData))
+            MenuStore.dynamicMenu(menuData)
+            
+            // 2. 获取添加完成后的路由列表
+            const routes = MenuStore.routerList  // 或者 routerList.value
+            // 3. 添加路由
+            routes.forEach(item => {
+              if (item && item.path) {
+                router.addRoute('main', item)
+              }
+            })
+            // 4. 确保路由添加完成后再跳转
+            await nextTick()
+            router.push('/')
+          } else {
+            console.error('menuPermissions 返回无效菜单数据', menuRes)
+          }
         }
       })
       }

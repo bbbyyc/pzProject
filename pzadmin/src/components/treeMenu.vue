@@ -29,49 +29,60 @@
           <span>Navigator Four</span>
         </el-menu-item> -->
         <template v-for="(item) in props.menuData">
-           <el-menu-item 
-           @click="handleClick(item,`${props.index}-${item.meta.id}`)"
-           v-if="!item.children||item.children.length==0"
-           :index="`${props.index}-${item.meta.id}`"
-           :key="`${props.index}-${item.meta.id}`">
-          <el-icon size="20">
-            <component :is="item.meta.icon"></component>
-          </el-icon>
-          <span>{{ item.meta.name }}</span>
-        </el-menu-item>
-        <el-sub-menu v-else :index="`${props.index}-${item.meta.id}`">
-          <template #title>
+           <el-menu-item
+             v-if="!item.children || item.children.length === 0"
+             @click="handleClick(item, `${props.index}-${item.meta?.id ?? item.path}`)"
+             :index="`${props.index}-${item.meta?.id ?? item.path}`"
+             :key="`${props.index}-${item.meta?.id ?? item.path}`">
             <el-icon size="20">
-              <component :is="item.meta.icon"></component>
+              <component :is="item.meta?.icon || item.icon"></component>
             </el-icon>
-            <span>{{ item.meta.name }}</span>
-          </template>
-          <TreeMenu :menuData="item.children" :index="`${props.index}-${item.meta.id}`"></TreeMenu>
-        </el-sub-menu>
+            <span>{{ item.meta?.name || item.name }}</span>
+          </el-menu-item>
+          <el-sub-menu v-else :index="`${props.index}-${item.meta?.id ?? item.path}`">
+            <template #title>
+              <el-icon size="20">
+                <component :is="item.meta?.icon || item.icon"></component>
+              </el-icon>
+              <span>{{ item.meta?.name || item.name }}</span>
+            </template>
+            <TreeMenu :menuData="item.children" :index="`${props.index}-${item.meta?.id ?? item.path}`"></TreeMenu>
+          </el-sub-menu>
         </template>
 </template>
 
-<script setup name="TreeMenu" lang="ts">
-import {useRouter} from 'vue-router'
-import {useMenuStore} from '../store/menu'
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
+import { useMenuStore, type MenuItem, type MenuTabItem } from '../store/menu'
 
-const props=defineProps(['menuData','index'])
-
-// 创建router实例
-const router=useRouter()
-
-const useMenu=useMenuStore()
-
-
-// 点击菜单(使用编程式路由导航实现路由跳转)
-const handleClick=(item:any,index:any)=>{
-  useMenu.addMenu(item.meta)
-  router.push(item.meta.path)
-  console.log('点击菜单列表时的item',item);
-  
-  useMenu.updateMenuActive(index)
+interface TreeMenuProps {
+  menuData: MenuItem[]
+  index: string
 }
 
+const props = defineProps<TreeMenuProps>()
+
+const router = useRouter()
+const menuStore = useMenuStore()
+
+const handleClick = (item: MenuItem, index: string) => {
+  const path = item.meta?.path || item.path
+  if (!path) {
+    console.warn('无效菜单项，无法跳转', item)
+    return
+  }
+
+  const tabItem: MenuTabItem = {
+    path,
+    name: item.meta?.name || item.name,
+    icon: item.meta?.icon || item.icon
+  }
+
+  menuStore.addMenu(tabItem)
+  router.push({ path })
+  console.log('点击菜单列表时的item', item)
+  menuStore.updateMenuActive(index)
+}
 </script>
 
 <style>

@@ -28,7 +28,7 @@ interface AuthAdminParams {
 interface userSetMenu {
   name: string;
   permissions: string;
-  id:number
+  id: number
 }
 
 // 菜单权限列表参数类型
@@ -41,14 +41,15 @@ interface menuList {
 interface updateUser {
   name: string;
   permissions_id: string;
+  id?: string | number;
 }
 
 // 陪护师创建接口
 interface companion {
-  id:number,
+  id: number,
   mobile: string;
-  active:number,
-  age:number,
+  active: number,
+  age: number,
   avatar: string;
   name: string;
   sex: string;
@@ -62,29 +63,29 @@ interface companionList {
 
 // 陪护师删除
 interface delectCompanion {
-  id:string
+  id: string
 }
 
 
 // 发送验证码的api
-export const getCode = (data:GetCodeParams) => {
+export const getCode = (data: GetCodeParams) => {
   return request.post('/get/code', data)
 }
 
 // 验证验证码的api
-export const userAuthentication = (data:UserAuthenticationParams) => {
+export const userAuthentication = (data: UserAuthenticationParams) => {
   return request.post('/user/authentication', data)
 }
 
 // 验证登录的的api
-export const Alogin = (data:LoginParams) => {
+export const Alogin = (data: LoginParams) => {
   return request.post('/login', data)
 }
 
 // 账号管理 :获取管理员列表
-export const authAdmin = (parmas:AuthAdminParams) => {
+export const authAdmin = (parmas: AuthAdminParams) => {
   return request.get('/auth/admin', {
-    params:parmas
+    params: parmas
   })
 }
 
@@ -94,14 +95,14 @@ export const userGetMenu = () => {
 }
 
 // 菜单权限修改
-export const userSetMenu = (data:userSetMenu) => {
-  return request.post('/user/setmenu',data)
+export const userSetMenu = (data: userSetMenu) => {
+  return request.post('/user/setmenu', data)
 }
 
 // 菜单权限列表
-export const menuList = (params:menuList) => {
-  return request.get('/menu/list',{
-    params:params
+export const menuList = (params: menuList) => {
+  return request.get('/menu/list', {
+    params: params
   })
 }
 
@@ -111,8 +112,8 @@ export const menuSelectList = () => {
 }
 
 // 编辑管理员信息
-export const updateUser = (data:updateUser) => {
-  return request.post('/update/user',data)
+export const updateUser = (data: updateUser) => {
+  return request.post('/update/user', data)
 }
 
 // 获取用户菜单权限
@@ -122,8 +123,8 @@ export const menuPermissions = () => {
 }
 
 // 陪护师弹窗
-export const companion = (data:companion) => {
-  return request.post('/companion',data)
+export const companion = (data: companion) => {
+  return request.post('/companion', data)
 }
 
 // 得到陪护师头像
@@ -132,25 +133,25 @@ export const photoList = () => {
 }
 
 // 陪护师列表
-export const companionList = (params:companionList) => {
-  return request.get('/companion/list',{
-    params:params
+export const companionList = (params: companionList) => {
+  return request.get('/companion/list', {
+    params: params
   })
 }
 
 // 陪护师删除
-export const delectCompanion = (data:delectCompanion) => {
-  return request.post('/delete/companion',data)
+export const delectCompanion = (data: delectCompanion) => {
+  return request.post('/delete/companion', data)
 }
 
 // 订单列表
-export const adminOrder = (params:companionList) => {
-  return request.get('/admin/order',{
-    params:params
+export const adminOrder = (params: companionList) => {
+  return request.get('/admin/order', {
+    params: params
   })
 }
 
 // 服务状态完成/update/order
-export const updateOrder = (data:string) => {
-  return request.post('/update/order',data)
+export const updateOrder = (data: string) => {
+  return request.post('/update/order', data)
 }
